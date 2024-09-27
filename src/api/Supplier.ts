@@ -16,6 +16,13 @@ export default class Supplier {
     });
   }
 
+  static async update(data: ISupplier) {
+    return new API().put(`/supplier/${data.id}`, data).then((response) => {
+      if (response.status !== 200) return Promise.reject(response);
+      return response.data as ISupplier;
+    });
+  }
+
   static async delete(id: number) {
     return new API().delete(`/supplier/${id}`).then((response) => {
       if (response.status !== 200) return Promise.reject(response);

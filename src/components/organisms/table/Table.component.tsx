@@ -8,6 +8,7 @@ import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.component"
 interface TableComponentProps {
   data: ISupplier[];
   onDelete: (id: number) => void;
+  onEdit: (supplier: ISupplier) => void;
 }
 
 export default function TableComponent(props: TableComponentProps) {
@@ -48,7 +49,7 @@ export default function TableComponent(props: TableComponentProps) {
 
         <Table.Td>
           <SimpleGrid cols={2}>
-            <PenBox size={20} />
+            <PenBox cursor={"pointer"} size={24} onClick={() => props.onEdit(supplier)} />
 
             <ConfirmationModal
               title="Delete supplier"
@@ -56,7 +57,7 @@ export default function TableComponent(props: TableComponentProps) {
               onCancel={() => null}
               onConfirm={() => props.onDelete(id)}
             >
-              <Trash size={20} />
+              <Trash cursor={"pointer"} size={24} />
             </ConfirmationModal>
           </SimpleGrid>
         </Table.Td>

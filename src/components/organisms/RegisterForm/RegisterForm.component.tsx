@@ -12,6 +12,7 @@ import { supplierFormSchema } from "./schema";
 
 interface RegisterFormProps {
   onFormSubmit: (data: ISupplier) => void;
+  defaultValues?: ISupplier;
 }
 
 export default function RegisterForm(props: RegisterFormProps) {
@@ -29,10 +30,10 @@ export default function RegisterForm(props: RegisterFormProps) {
     watch,
     setValue,
     setError,
-    formState: { errors }
+    formState: { errors, dirtyFields }
   } = useForm<ISupplier>({
     resolver: yupResolver(supplierFormSchema) as any,
-    defaultValues: {
+    defaultValues: props.defaultValues || {
       contacts: [{ name: "", phone: "" }],
       address: { zipCode: "", state: "", city: "", street: "", number: undefined, reference: "" }
     }
@@ -76,9 +77,8 @@ export default function RegisterForm(props: RegisterFormProps) {
         handleSetFieldValue("address.city", localidade, setDisabledFields);
         handleSetFieldValue("address.state", uf, setDisabledFields);
         handleSetFieldValue("address.street", logradouro, setDisabledFields);
-        handleSetFieldValue("address.street", logradouro, setDisabledFields);
 
-        setDisabledFields((prev) => ({ ...prev, number: false }));
+        setDisabledFields((prev) => ({ ...prev, number: !dirtyFields?.address?.zipCode }));
 
         handleSetError("address.zipCode", "");
 
@@ -99,7 +99,7 @@ export default function RegisterForm(props: RegisterFormProps) {
   };
 
   useEffect(() => {
-    if (zipCode && zipCode.length === 8) {
+    if (zipCode.length === 8 && dirtyFields.address?.zipCode) {
       fetchAddress(zipCode);
     }
   }, [zipCode]);
@@ -141,6 +141,7 @@ export default function RegisterForm(props: RegisterFormProps) {
               label="Phone"
               placeholder="Enter contact's phone number"
               {...register(`contacts.${index}.phone` as const)}
+              defaultValue={item.phone}
               onChange={(e) => {
                 const value = e.currentTarget.value.replace(/[^0-9]/g, "");
                 setValue(`contacts.${index}.phone`, value);
@@ -177,9 +178,12 @@ export default function RegisterForm(props: RegisterFormProps) {
               label="ZIP Code"
               placeholder="Enter ZIP code"
               {...register(`address.zipCode` as const)}
+              defaultValue={props.defaultValues?.address.zipCode}
               onChange={(e) => {
                 const value = e.currentTarget.value.replace(/[^0-9]/g, "");
-                setValue(`address.zipCode`, value);
+                setValue(`address.zipCode`, value, {
+                  shouldDirty: true
+                });
               }}
               error={errors.address?.zipCode?.message}
             />
@@ -228,7 +232,7 @@ export default function RegisterForm(props: RegisterFormProps) {
       </div>
 
       <Button className="submit_button" h={48} mt={24} w={"100%"} type="submit">
-        Submit
+        {props.defaultValues ? "Update supplier" : "Register supplier"}
       </Button>
     </Form>
   );

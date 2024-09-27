@@ -4,8 +4,12 @@
       "id": "c06b",
       "contacts": [
         {
-          "name": "machado",
+          "name": "caio theobaldus",
           "phone": "48984262812"
+        },
+        {
+          "name": "asdasd",
+          "phone": "33333333333"
         }
       ],
       "address": {
@@ -41,6 +45,25 @@
       },
       "name": "caio theobaldo theodoro",
       "description": "campo mourao"
+    },
+    {
+      "id": "de56",
+      "contacts": [
+        {
+          "name": "131234134",
+          "phone": "12222222222"
+        }
+      ],
+      "address": {
+        "zipCode": "88780000",
+        "state": "SC",
+        "city": "Imbituba",
+        "street": "asdasd",
+        "number": 3333333,
+        "reference": "asdasd"
+      },
+      "name": "novo supplier",
+      "description": "asiodasoidj"
     }
   ]
 }

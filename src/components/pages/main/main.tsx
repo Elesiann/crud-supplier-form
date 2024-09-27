@@ -10,9 +10,11 @@ import { handleNotification } from "../../../utils/notification";
 import DrawerComponent from "../../molecules/drawer/Drawer.component";
 import RegisterForm from "../../organisms/RegisterForm/RegisterForm.component";
 import TableComponent from "../../organisms/table/Table.component";
+import { useState } from "react";
 
 const MainPage = () => {
   const [opened, { open, close }] = useDisclosure(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<ISupplier>();
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -27,20 +29,34 @@ const MainPage = () => {
   };
 
   const onFormSubmit = async (data: ISupplier) => {
-    try {
-      await Supplier.register(data);
-
-      handleNotification("Supplier registered", "Supplier registered successfully", "green");
+    const handleSuccess = (action: string) => {
+      handleNotification(`Supplier ${action}`, `Supplier ${action} successfully`, "green");
       mutate();
-    } catch (err) {
-      isAxiosError(err) &&
-        handleNotification(err.code as string, "Failed to register supplier", "red");
+      handleDrawerClose();
+    };
 
-      handleNotification(
-        "Unknown error occurred while registering supplier",
-        "Failed to register supplier",
-        "red"
-      );
+    const handleError = (err: unknown, action: string) => {
+      if (isAxiosError(err)) {
+        handleNotification(err.code as string, `Failed to ${action} supplier`, "red");
+      } else {
+        handleNotification(
+          `Unknown error occurred while ${action} supplier`,
+          `Failed to ${action} supplier`,
+          "red"
+        );
+      }
+    };
+
+    try {
+      if (selectedSupplier) {
+        await Supplier.update(data);
+        handleSuccess("updated");
+      } else {
+        await Supplier.register(data);
+        handleSuccess("registered");
+      }
+    } catch (err) {
+      handleError(err, selectedSupplier ? "update" : "register");
     }
   };
 
@@ -51,15 +67,26 @@ const MainPage = () => {
       handleNotification("Supplier deleted", "Supplier deleted successfully", "green");
       mutate();
     } catch (err) {
-      isAxiosError(err) &&
+      if (isAxiosError(err)) {
         handleNotification(err.code as string, "Failed to delete supplier", "red");
-
-      handleNotification(
-        "Unknown error occurred while deleting supplier",
-        "Failed to delete supplier",
-        "red"
-      );
+      } else {
+        handleNotification(
+          "Unknown error occurred while deleting supplier",
+          "Failed to delete supplier",
+          "red"
+        );
+      }
     }
+  };
+
+  const handleEdit = (supplier: ISupplier) => {
+    setSelectedSupplier(supplier);
+    open();
+  };
+
+  const handleDrawerClose = () => {
+    setSelectedSupplier(undefined);
+    close();
   };
 
   if (isLoading && !data) return <div>Loading...</div>;
@@ -75,12 +102,12 @@ const MainPage = () => {
         size={rem(600)}
         position="right"
         opened={opened}
-        onClose={close}
+        onClose={handleDrawerClose}
         title="New supplier form"
       >
-        <RegisterForm onFormSubmit={onFormSubmit} />
+        <RegisterForm defaultValues={selectedSupplier} onFormSubmit={onFormSubmit} />
       </DrawerComponent>
-      {data && <TableComponent data={data} onDelete={handleDelete} />}
+      {data && <TableComponent data={data} onDelete={handleDelete} onEdit={handleEdit} />}
     </Container>
   );
 };
