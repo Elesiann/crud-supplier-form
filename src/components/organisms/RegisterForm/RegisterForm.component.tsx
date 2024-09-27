@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, InputBase, SimpleGrid, Textarea, TextInput } from "@mantine/core";
+import { Button, InputBase, LoadingOverlay, SimpleGrid, Textarea, TextInput } from "@mantine/core";
 import { PlusCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -16,6 +16,7 @@ interface RegisterFormProps {
 }
 
 export default function RegisterForm(props: RegisterFormProps) {
+  const [loading, setLoading] = useState(false);
   const [disabledFields, setDisabledFields] = useState({
     city: true,
     state: true,
@@ -69,6 +70,7 @@ export default function RegisterForm(props: RegisterFormProps) {
     };
 
     try {
+      setLoading(true);
       const data = await ViaCep.getZipCode(zipCode);
 
       if (!data.erro) {
@@ -95,6 +97,8 @@ export default function RegisterForm(props: RegisterFormProps) {
       );
     } catch (error) {
       handleNotification("Address data fetch failed", "Failed to fetch address data.", "red");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,6 +110,7 @@ export default function RegisterForm(props: RegisterFormProps) {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
+      {loading && <LoadingOverlay visible zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />}
       <div>
         <TextInput
           mb={8}
