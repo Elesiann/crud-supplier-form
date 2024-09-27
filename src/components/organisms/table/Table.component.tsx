@@ -1,7 +1,6 @@
 import { Checkbox, SimpleGrid, Table } from "@mantine/core";
 import { PenBox, Trash } from "lucide-react";
 import { useState } from "react";
-import theme from "../../../theme/theme";
 
 const elements = [
   { position: 6, mass: 12.011, symbol: "C", name: "Carbon" },
@@ -19,7 +18,6 @@ export default function TableComponent() {
       <Table.Td>
         <Checkbox
           aria-label="Select row"
-          color={theme.color.primary.lightBlue}
           checked={selectedRows.includes(element.position)}
           onChange={(event) =>
             setSelectedRows(

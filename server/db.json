@@ -1,13 +1,46 @@
 {
-  "posts": [
-    { "id": "1", "title": "a title", "views": 100 },
-    { "id": "2", "title": "another title", "views": 200 }
-  ],
-  "comments": [
-    { "id": "1", "text": "a comment about post 1", "postId": "1" },
-    { "id": "2", "text": "another comment about post 1", "postId": "1" }
-  ],
-  "profile": {
-    "name": "typicode"
-  }
+  "supplier": [
+    {
+      "id": "1",
+      "name": "Fornecedor 1",
+      "description": "Descrição do fornecedor 1",
+      "contact": { "name": "Contato 1", "phone": "11 9999-9999" },
+      "address": {
+        "zipCode": "00000-000",
+        "state": "SP",
+        "city": "São Paulo",
+        "street": "Rua 1",
+        "number": "1",
+        "reference": "Próximo a algum lugar"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Fornecedor 2",
+      "description": "Descrição do fornecedor 2",
+      "contact": { "name": "Contato 2", "phone": "11 9999-9999" },
+      "address": {
+        "zipCode": "00000-000",
+        "state": "SP",
+        "city": "São Paulo",
+        "street": "Rua 2",
+        "number": "2",
+        "reference": "Próximo a algum lugar"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Fornecedor 3",
+      "description": "Descrição do fornecedor 3",
+      "contact": { "name": "Contato 3", "phone": "11 9999-9999" },
+      "address": {
+        "zipCode": "00000-000",
+        "state": "SP",
+        "city": "São Paulo",
+        "street": "Rua 3",
+        "number": "3",
+        "reference": "Próximo a algum lugar"
+      }
+    }
+  ]
 }
