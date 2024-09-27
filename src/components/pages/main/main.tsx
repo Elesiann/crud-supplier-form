@@ -112,9 +112,11 @@ const MainPage = () => {
     close();
   };
 
+  const payloadToExport = selectedRows.length > 0 ? selectedRows : rows;
+
   const csvData = {
     fields: ["name", "description", "contacts", "address"],
-    data: selectedRows.map((row) => {
+    data: payloadToExport?.map((row) => {
       const { name, description, contacts, address } = row;
       const { street, number, city, state } = address;
 
