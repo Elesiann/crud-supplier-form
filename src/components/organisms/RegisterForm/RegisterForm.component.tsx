@@ -1,12 +1,16 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, InputBase, SimpleGrid, Textarea, TextInput } from "@mantine/core";
+import axios from "axios";
 import { PlusCircle, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { IMaskInput } from "react-imask";
 import styled from "styled-components";
-import * as yup from "yup";
+import { handleNotification } from "../../../utils/notification";
+import { supplierFormSchema } from "./schema";
 
 type Contact = { name: string; phone: string };
+
 type Address = {
   zipCode: string;
   state: string;
@@ -20,44 +24,30 @@ type FormData = {
   name: string;
   description: string;
   contacts: Contact[];
-  address: Address[];
+  address: Address;
 };
 
-const schema = yup.object().shape({
-  name: yup.string().required("Name is required"),
-  description: yup.string().required("Description is required"),
-  contacts: yup
-    .array()
-    .of(
-      yup.object().shape({
-        name: yup.string().required("Contact name is required"),
-        phone: yup.string().required("Phone number is required")
-      })
-    )
-    .min(1, "At least one contact is required"),
-  address: yup.array().of(
-    yup.object().shape({
-      zipCode: yup.string().required("ZIP code is required"),
-      state: yup.string().required("State is required"),
-      city: yup.string().required("City is required"),
-      street: yup.string().required("Street is required"),
-      number: yup.number().typeError("Number must be a number").required("Number is required"),
-      reference: yup.string().optional()
-    })
-  )
-});
-
 export default function RegisterForm() {
+  const [disabledFields, setDisabledFields] = useState({
+    city: false,
+    state: false,
+    street: false,
+    number: false
+  });
+
   const {
     register,
     handleSubmit,
     control,
+    watch,
+    setValue,
+    setError,
     formState: { errors }
   } = useForm<FormData>({
-    resolver: yupResolver(schema) as any,
+    resolver: yupResolver(supplierFormSchema) as any,
     defaultValues: {
       contacts: [{ name: "", phone: "" }],
-      address: [{ zipCode: "", state: "", city: "", street: "", number: undefined, reference: "" }]
+      address: { zipCode: "", state: "", city: "", street: "", number: undefined, reference: "" }
     }
   });
 
@@ -70,19 +60,71 @@ export default function RegisterForm() {
     name: "contacts"
   });
 
-  const { fields: addressFields } = useFieldArray({
-    control,
-    name: "address"
-  });
-
   const onSubmit = (data: FormData) => {
     console.log(data);
   };
 
+  const zipCode = watch("address.zipCode");
+
+  const fetchAddress = async (zipCode: string) => {
+    const handleSetFieldValue = (
+      fieldName: string,
+      value: string | undefined,
+      shouldDisable: boolean,
+      setDisabled: React.Dispatch<React.SetStateAction<typeof disabledFields>>
+    ) => {
+      setValue(fieldName as keyof FormData, value || "");
+      shouldDisable && setDisabled((prev) => ({ ...prev, [fieldName.split(".")[1]]: !!value }));
+    };
+
+    const handleSetError = (fieldName: string, message: string) => {
+      setError(fieldName as keyof FormData, { message });
+    };
+
+    try {
+      const response = await axios.get(`https://viacep.com.br/ws/${zipCode}/json/`);
+      const data = response.data;
+
+      if (!data.erro) {
+        const { localidade, uf, logradouro } = data;
+
+        handleSetFieldValue("address.city", localidade, !!localidade, setDisabledFields);
+        handleSetFieldValue("address.state", uf, !!uf, setDisabledFields);
+        handleSetFieldValue("address.street", logradouro, !!logradouro, setDisabledFields);
+
+        setDisabledFields((prev) => ({ ...prev, number: false }));
+
+        handleSetError("address.zipCode", "");
+
+        handleNotification("Address data fetched", "Address data fetched successfully", "green");
+      } else {
+        handleSetError("address.zipCode", "Invalid ZIP code");
+        handleNotification(
+          "Invalid ZIP code",
+          "Failed to fetch address data. Please check the ZIP code",
+          "red"
+        );
+      }
+    } catch (error) {
+      handleNotification("Address data fetch failed", "Failed to fetch address data.", "red");
+    }
+  };
+  useEffect(() => {
+    if (zipCode && zipCode.length === 8) {
+      fetchAddress(zipCode);
+    }
+  }, [zipCode]);
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <TextInput mb={8} label="Name" placeholder="Enter supplier's name" {...register("name")} error={errors.name?.message} />
+        <TextInput
+          mb={8}
+          label="Name"
+          placeholder="Enter supplier's name"
+          {...register("name")}
+          error={errors.name?.message}
+        />
       </div>
 
       <div>
@@ -110,6 +152,10 @@ export default function RegisterForm() {
               label="Phone"
               placeholder="Enter contact's phone number"
               {...register(`contacts.${index}.phone` as const)}
+              onChange={(e) => {
+                const value = e.currentTarget.value.replace(/[^0-9]/g, "");
+                setValue(`contacts.${index}.phone`, value);
+              }}
               error={errors.contacts?.[index]?.phone?.message}
             />
             <Button
@@ -123,57 +169,72 @@ export default function RegisterForm() {
             </Button>
           </ContactGrid>
         ))}
-        <Button leftSection={<PlusCircle size={18} />} mt={24} onClick={() => appendContact({ name: "", phone: "" })}>
+        <Button
+          leftSection={<PlusCircle size={18} />}
+          mt={24}
+          onClick={() => appendContact({ name: "", phone: "" })}
+        >
           Add another contact
         </Button>
       </div>
 
       <div>
         <h2>Address</h2>
-        {addressFields.map((item, index) => (
-          <div key={item.id}>
-            <SimpleGrid cols={3} mb={8}>
-              <InputBase
-                component={IMaskInput}
-                mask="00000-000"
-                label="ZIP Code"
-                placeholder="Enter ZIP code"
-                {...register(`address.${index}.zipCode` as const)}
-                error={errors.address?.[index]?.zipCode?.message}
-              />
+        <div>
+          <SimpleGrid cols={3} mb={8}>
+            <InputBase
+              component={IMaskInput}
+              mask="00000-000"
+              label="ZIP Code"
+              placeholder="Enter ZIP code"
+              {...register(`address.zipCode` as const)}
+              onChange={(e) => {
+                const value = e.currentTarget.value.replace(/[^0-9]/g, "");
+                setValue(`address.zipCode`, value);
+              }}
+              error={errors.address?.zipCode?.message}
+            />
 
-              <TextInput
-                label="State"
-                placeholder="Enter state"
-                {...register(`address.${index}.state` as const)}
-                error={errors.address?.[index]?.state?.message}
-              />
-              <TextInput
-                label="City"
-                placeholder="Enter city"
-                {...register(`address.${index}.city` as const)}
-                error={errors.address?.[index]?.city?.message}
-              />
-            </SimpleGrid>
+            <TextInput
+              disabled={disabledFields.state}
+              label="State"
+              placeholder="Enter state"
+              {...register(`address.state` as const)}
+              error={errors.address?.state?.message}
+            />
 
-            <SimpleGrid cols={2} mb={8}>
-              <TextInput
-                label="Street"
-                placeholder="Enter street"
-                {...register(`address.${index}.street` as const)}
-                error={errors.address?.[index]?.street?.message}
-              />
+            <TextInput
+              disabled={disabledFields.city}
+              label="City"
+              placeholder="Enter city"
+              {...register(`address.city` as const)}
+              error={errors.address?.city?.message}
+            />
+          </SimpleGrid>
 
-              <TextInput
-                label="Number"
-                placeholder="Enter number"
-                {...register(`address.${index}.number`, { valueAsNumber: true } as const)}
-                error={errors.address?.[index]?.number?.message}
-              />
-            </SimpleGrid>
-            <TextInput label="Landmark" placeholder="Enter landmark (optional)" {...register(`address.${index}.reference` as const)} />
-          </div>
-        ))}
+          <SimpleGrid cols={2} mb={8}>
+            <TextInput
+              disabled={disabledFields.street}
+              label="Street"
+              placeholder="Enter street"
+              {...register(`address.street` as const)}
+              error={errors.address?.street?.message}
+            />
+
+            <TextInput
+              disabled={disabledFields.number}
+              label="Number"
+              placeholder="Enter number"
+              {...register(`address.number`, { valueAsNumber: true } as const)}
+              error={errors.address?.number?.message}
+            />
+          </SimpleGrid>
+          <TextInput
+            label="Landmark"
+            placeholder="Enter landmark (optional)"
+            {...register(`address.reference` as const)}
+          />
+        </div>
       </div>
 
       <Button className="submit_button" h={48} mt={24} w={"100%"} type="submit">
