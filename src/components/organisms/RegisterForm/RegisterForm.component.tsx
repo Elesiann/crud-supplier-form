@@ -1,18 +1,20 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, InputBase, SimpleGrid, Textarea, TextInput } from "@mantine/core";
-import { isAxiosError } from "axios";
 import { PlusCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { IMaskInput } from "react-imask";
 import styled from "styled-components";
-import Supplier from "../../../api/Supplier";
 import ViaCep from "../../../api/Viacep";
 import { ISupplier } from "../../../types/Supplier.type";
 import { handleNotification } from "../../../utils/notification";
 import { supplierFormSchema } from "./schema";
 
-export default function RegisterForm() {
+interface RegisterFormProps {
+  onFormSubmit: (data: ISupplier) => void;
+}
+
+export default function RegisterForm(props: RegisterFormProps) {
   const [disabledFields, setDisabledFields] = useState({
     city: true,
     state: true,
@@ -46,19 +48,7 @@ export default function RegisterForm() {
   });
 
   const onSubmit = async (data: ISupplier) => {
-    try {
-      await Supplier.register(data);
-      handleNotification("Supplier registered", "Supplier registered successfully", "green");
-    } catch (err) {
-      isAxiosError(err) &&
-        handleNotification(err.code as string, "Failed to register supplier", "red");
-
-      handleNotification(
-        "Unknown error occurred while registering supplier",
-        "Failed to register supplier",
-        "red"
-      );
-    }
+    props.onFormSubmit(data);
   };
 
   const zipCode = watch("address.zipCode");

@@ -1,54 +1,80 @@
 import { Checkbox, SimpleGrid, Table } from "@mantine/core";
 import { PenBox, Trash } from "lucide-react";
 import { useState } from "react";
+import { ISupplier } from "../../../types/Supplier.type";
+import phone_formatter from "../../../utils/phone_formatter";
+import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.component";
 
-const elements = [
-  { position: 6, mass: 12.011, symbol: "C", name: "Carbon" },
-  { position: 7, mass: 14.007, symbol: "N", name: "Nitrogen" },
-  { position: 39, mass: 88.906, symbol: "Y", name: "Yttrium" },
-  { position: 56, mass: 137.33, symbol: "Ba", name: "Barium" },
-  { position: 58, mass: 140.12, symbol: "Ce", name: "Cerium" }
-];
+interface TableComponentProps {
+  data: ISupplier[];
+  onDelete: (id: number) => void;
+}
 
-export default function TableComponent() {
+export default function TableComponent(props: TableComponentProps) {
+  const { data } = props;
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
-  const rows = elements.map((element) => (
-    <Table.Tr key={element.name} bg={selectedRows.includes(element.position) ? "var(--mantine-color-blue-light)" : undefined}>
-      <Table.Td>
-        <Checkbox
-          aria-label="Select row"
-          checked={selectedRows.includes(element.position)}
-          onChange={(event) =>
-            setSelectedRows(
-              event.currentTarget.checked ? [...selectedRows, element.position] : selectedRows.filter((position) => position !== element.position)
-            )
-          }
-        />
-      </Table.Td>
-      <Table.Td>{element.position}</Table.Td>
-      <Table.Td>{element.name}</Table.Td>
-      <Table.Td>{element.symbol}</Table.Td>
-      <Table.Td>{element.mass}</Table.Td>
-      <Table.Td>
-        <SimpleGrid cols={2}>
-          <PenBox size={20} />
-          <Trash size={20} />
-        </SimpleGrid>
-      </Table.Td>
-    </Table.Tr>
-  ));
+  const rows = data?.map((supplier) => {
+    const { id, name, description, contacts, address } = supplier;
+    const { street, number, city, state } = address;
+
+    return (
+      <Table.Tr
+        key={id}
+        bg={selectedRows.includes(id) ? "var(--mantine-color-blue-light)" : undefined}
+      >
+        <Table.Td>
+          <Checkbox
+            aria-label="Select row"
+            checked={selectedRows.includes(id)}
+            onChange={(event) =>
+              setSelectedRows(
+                event.currentTarget.checked
+                  ? [...selectedRows, id]
+                  : selectedRows.filter((position) => position !== id)
+              )
+            }
+          />
+        </Table.Td>
+        <Table.Td>{id}</Table.Td>
+        <Table.Td>{name}</Table.Td>
+        <Table.Td>{description}</Table.Td>
+        <Table.Td>
+          {contacts
+            .map((contact) => `${contact.name} - ${phone_formatter(contact.phone)}`)
+            .join(", ")}
+        </Table.Td>
+        <Table.Td>{`${street}, ${number}, ${city} - ${state}`}</Table.Td>
+
+        <Table.Td>
+          <SimpleGrid cols={2}>
+            <PenBox size={20} />
+
+            <ConfirmationModal
+              title="Delete supplier"
+              text="Are you sure you want to delete this supplier? This action is irreversible."
+              onCancel={() => null}
+              onConfirm={() => props.onDelete(id)}
+            >
+              <Trash size={20} />
+            </ConfirmationModal>
+          </SimpleGrid>
+        </Table.Td>
+      </Table.Tr>
+    );
+  });
 
   return (
     <Table>
       <Table.Thead>
         <Table.Tr>
           <Table.Th />
-          <Table.Th>Element position</Table.Th>
-          <Table.Th>Element name</Table.Th>
-          <Table.Th>Symbol</Table.Th>
-          <Table.Th>Atomic mass</Table.Th>
-          <Table.Th>Ações</Table.Th>
+          <Table.Th>ID</Table.Th>
+          <Table.Th>Name</Table.Th>
+          <Table.Th>Description</Table.Th>
+          <Table.Th>Contacts</Table.Th>
+          <Table.Th>Address</Table.Th>
+          <Table.Th>Actions</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>{rows}</Table.Tbody>
