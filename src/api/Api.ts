@@ -5,6 +5,7 @@ class API {
 
   constructor() {
     this.request = axios.create();
+    this.request.defaults.baseURL = "http://localhost:3000";
   }
 
   async get(path: string, config?: AxiosRequestConfig) {

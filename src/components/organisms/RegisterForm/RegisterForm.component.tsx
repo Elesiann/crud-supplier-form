@@ -1,38 +1,23 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, InputBase, SimpleGrid, Textarea, TextInput } from "@mantine/core";
-import axios from "axios";
+import { isAxiosError } from "axios";
 import { PlusCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { IMaskInput } from "react-imask";
 import styled from "styled-components";
+import Supplier from "../../../api/Supplier";
+import ViaCep from "../../../api/Viacep";
+import { ISupplier } from "../../../types/Supplier.type";
 import { handleNotification } from "../../../utils/notification";
 import { supplierFormSchema } from "./schema";
 
-type Contact = { name: string; phone: string };
-
-type Address = {
-  zipCode: string;
-  state: string;
-  city: string;
-  street: string;
-  number: number;
-  reference?: string;
-};
-
-type FormData = {
-  name: string;
-  description: string;
-  contacts: Contact[];
-  address: Address;
-};
-
 export default function RegisterForm() {
   const [disabledFields, setDisabledFields] = useState({
-    city: false,
-    state: false,
-    street: false,
-    number: false
+    city: true,
+    state: true,
+    street: true,
+    number: true
   });
 
   const {
@@ -43,7 +28,7 @@ export default function RegisterForm() {
     setValue,
     setError,
     formState: { errors }
-  } = useForm<FormData>({
+  } = useForm<ISupplier>({
     resolver: yupResolver(supplierFormSchema) as any,
     defaultValues: {
       contacts: [{ name: "", phone: "" }],
@@ -60,8 +45,20 @@ export default function RegisterForm() {
     name: "contacts"
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
+  const onSubmit = async (data: ISupplier) => {
+    try {
+      await Supplier.register(data);
+      handleNotification("Supplier registered", "Supplier registered successfully", "green");
+    } catch (err) {
+      isAxiosError(err) &&
+        handleNotification(err.code as string, "Failed to register supplier", "red");
+
+      handleNotification(
+        "Unknown error occurred while registering supplier",
+        "Failed to register supplier",
+        "red"
+      );
+    }
   };
 
   const zipCode = watch("address.zipCode");
@@ -70,45 +67,47 @@ export default function RegisterForm() {
     const handleSetFieldValue = (
       fieldName: string,
       value: string | undefined,
-      shouldDisable: boolean,
       setDisabled: React.Dispatch<React.SetStateAction<typeof disabledFields>>
     ) => {
-      setValue(fieldName as keyof FormData, value || "");
-      shouldDisable && setDisabled((prev) => ({ ...prev, [fieldName.split(".")[1]]: !!value }));
+      setValue(fieldName as keyof ISupplier, value || "");
+      setDisabled((prev) => ({ ...prev, [fieldName.split(".")[1]]: !!value }));
     };
 
     const handleSetError = (fieldName: string, message: string) => {
-      setError(fieldName as keyof FormData, { message });
+      setError(fieldName as keyof ISupplier, { message });
     };
 
     try {
-      const response = await axios.get(`https://viacep.com.br/ws/${zipCode}/json/`);
-      const data = response.data;
+      const data = await ViaCep.getZipCode(zipCode);
 
       if (!data.erro) {
         const { localidade, uf, logradouro } = data;
 
-        handleSetFieldValue("address.city", localidade, !!localidade, setDisabledFields);
-        handleSetFieldValue("address.state", uf, !!uf, setDisabledFields);
-        handleSetFieldValue("address.street", logradouro, !!logradouro, setDisabledFields);
+        handleSetFieldValue("address.city", localidade, setDisabledFields);
+        handleSetFieldValue("address.state", uf, setDisabledFields);
+        handleSetFieldValue("address.street", logradouro, setDisabledFields);
+        handleSetFieldValue("address.street", logradouro, setDisabledFields);
 
         setDisabledFields((prev) => ({ ...prev, number: false }));
 
         handleSetError("address.zipCode", "");
 
         handleNotification("Address data fetched", "Address data fetched successfully", "green");
-      } else {
-        handleSetError("address.zipCode", "Invalid ZIP code");
-        handleNotification(
-          "Invalid ZIP code",
-          "Failed to fetch address data. Please check the ZIP code",
-          "red"
-        );
+
+        return;
       }
+
+      handleSetError("address.zipCode", "Invalid ZIP code");
+      handleNotification(
+        "Invalid ZIP code",
+        "Failed to fetch address data. Please check the ZIP code",
+        "red"
+      );
     } catch (error) {
       handleNotification("Address data fetch failed", "Failed to fetch address data.", "red");
     }
   };
+
   useEffect(() => {
     if (zipCode && zipCode.length === 8) {
       fetchAddress(zipCode);
@@ -229,6 +228,7 @@ export default function RegisterForm() {
               error={errors.address?.number?.message}
             />
           </SimpleGrid>
+
           <TextInput
             label="Landmark"
             placeholder="Enter landmark (optional)"
