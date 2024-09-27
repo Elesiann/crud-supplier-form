@@ -1,9 +1,8 @@
-import { Checkbox, SimpleGrid, Table } from "@mantine/core";
-import { PenBox, Trash } from "lucide-react";
+import { Checkbox, Menu, Table } from "@mantine/core";
+import { CircleEllipsis, MapPin, PencilLine, PhoneOutgoing, Trash } from "lucide-react";
 import styled from "styled-components";
 import { ISupplier } from "../../../types/Supplier.type";
 import phone_formatter from "../../../utils/phone_formatter";
-import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.component";
 
 interface TableComponentProps {
   data: ISupplier[];
@@ -16,16 +15,64 @@ interface TableComponentProps {
 export default function TableComponent(props: TableComponentProps) {
   const { data, setSelectedRows, selectedRows } = props;
 
+  const renderMenuDropdown = (supplier: ISupplier) => {
+    const baseUrl = "https://www.google.com/maps/search/?api=1";
+    const query = `${supplier.address.street} ${supplier.address.number}, ${supplier.address.city}, ${supplier.address.state}`;
+    const url = `${baseUrl}&query=${encodeURIComponent(query)}`;
+
+    return (
+      <Menu shadow="md" position="bottom-end" width={200}>
+        <Menu.Target>
+          <CircleEllipsis cursor={"pointer"} size={24} />
+        </Menu.Target>
+        <Menu.Dropdown>
+          <Menu.Item
+            onClick={() => {
+              props.onEdit(supplier);
+            }}
+            leftSection={<PencilLine size={18} />}
+          >
+            Edit supplier
+          </Menu.Item>
+          <Menu.Item leftSection={<PhoneOutgoing size={18} />}>
+            <a
+              href={`https://wa.me/${supplier.contacts[0].phone.replace(/[^0-9]/g, "")}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open WhatsApp
+            </a>
+          </Menu.Item>
+          <Menu.Item
+            onClick={() => {
+              window.open(url, "_blank");
+            }}
+            leftSection={<MapPin size={18} />}
+          >
+            See location
+          </Menu.Item>
+          <Menu.Divider />
+          <Menu.Item
+            onClick={() => {
+              props.onDelete(supplier.id);
+            }}
+            color="red"
+            leftSection={<Trash size={18} />}
+          >
+            Delete supplier
+          </Menu.Item>
+        </Menu.Dropdown>
+      </Menu>
+    );
+  };
+
   const rows = data?.map((supplier) => {
     const { id, name, description, contacts, address } = supplier;
     const { street, number, city, state } = address;
 
     return (
-      <Table.Tr
-        key={id}
-        bg={selectedRows.includes(supplier) ? "var(--mantine-color-blue-light)" : undefined}
-      >
-        <Table.Td>
+      <Table.Tr key={id}>
+        <Table.Td pl={24}>
           <Checkbox
             aria-label="Select row"
             checked={selectedRows.includes(supplier)}
@@ -48,19 +95,8 @@ export default function TableComponent(props: TableComponentProps) {
         </Table.Td>
         <Table.Td>{`${street}, ${number}, ${city} - ${state}`}</Table.Td>
 
-        <Table.Td>
-          <Grid cols={2}>
-            <PenBox className="edit" size={24} onClick={() => props.onEdit(supplier)} />
-
-            <ConfirmationModal
-              title="Delete supplier"
-              text="Are you sure you want to delete this supplier? This action is irreversible."
-              onCancel={() => null}
-              onConfirm={() => props.onDelete(id)}
-            >
-              <Trash className="delete" size={24} />
-            </ConfirmationModal>
-          </Grid>
+        <Table.Td pr={24} align="center">
+          {renderMenuDropdown(supplier)}
         </Table.Td>
       </Table.Tr>
     );
@@ -68,7 +104,7 @@ export default function TableComponent(props: TableComponentProps) {
 
   return (
     <Table.ScrollContainer minWidth={800}>
-      <GlassmorphismTable horizontalSpacing="xl" verticalSpacing="lg">
+      <GlassmorphismTable verticalSpacing={"md"}>
         <Table.Thead>
           <Table.Tr>
             <Table.Th />
@@ -77,7 +113,7 @@ export default function TableComponent(props: TableComponentProps) {
             <Table.Th>Description</Table.Th>
             <Table.Th>Contacts</Table.Th>
             <Table.Th>Address</Table.Th>
-            <Table.Th>Actions</Table.Th>
+            <Table.Th pr={24}>Actions</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
@@ -85,24 +121,6 @@ export default function TableComponent(props: TableComponentProps) {
     </Table.ScrollContainer>
   );
 }
-
-const Grid = styled(SimpleGrid)`
-  .edit {
-    &:hover {
-      stroke: ${({ theme }) => theme.color.primary.lightBlue};
-    }
-  }
-
-  .delete {
-    &:hover {
-      stroke: ${({ theme }) => theme.color.secondary.red};
-    }
-  }
-
-  svg {
-    cursor: pointer;
-  }
-`;
 
 const GlassmorphismTable = styled(Table)`
   border-radius: 1rem;

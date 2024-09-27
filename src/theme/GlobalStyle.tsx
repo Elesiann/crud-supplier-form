@@ -9,4 +9,11 @@ export const GlobalStyle = createGlobalStyle`
         font-family: 'Inter', sans-serif;
         min-height: 100dvh;
     }
+
+    a, a:visited {
+        text-decoration: none;
+        color: inherit;
+
+    
+    }
 `;
