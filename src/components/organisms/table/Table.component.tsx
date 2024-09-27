@@ -1,6 +1,5 @@
 import { Checkbox, SimpleGrid, Table } from "@mantine/core";
 import { PenBox, Trash } from "lucide-react";
-import { useState } from "react";
 import { ISupplier } from "../../../types/Supplier.type";
 import phone_formatter from "../../../utils/phone_formatter";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.component";
@@ -9,11 +8,12 @@ interface TableComponentProps {
   data: ISupplier[];
   onDelete: (id: number) => void;
   onEdit: (supplier: ISupplier) => void;
+  setSelectedRows: (rows: ISupplier[]) => void;
+  selectedRows: ISupplier[];
 }
 
 export default function TableComponent(props: TableComponentProps) {
-  const { data } = props;
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const { data, setSelectedRows, selectedRows } = props;
 
   const rows = data?.map((supplier) => {
     const { id, name, description, contacts, address } = supplier;
@@ -22,17 +22,17 @@ export default function TableComponent(props: TableComponentProps) {
     return (
       <Table.Tr
         key={id}
-        bg={selectedRows.includes(id) ? "var(--mantine-color-blue-light)" : undefined}
+        bg={selectedRows.includes(supplier) ? "var(--mantine-color-blue-light)" : undefined}
       >
         <Table.Td>
           <Checkbox
             aria-label="Select row"
-            checked={selectedRows.includes(id)}
+            checked={selectedRows.includes(supplier)}
             onChange={(event) =>
               setSelectedRows(
-                event.currentTarget.checked
-                  ? [...selectedRows, id]
-                  : selectedRows.filter((position) => position !== id)
+                event.target.checked
+                  ? [...selectedRows, supplier]
+                  : selectedRows.filter((row) => row.id !== id)
               )
             }
           />
