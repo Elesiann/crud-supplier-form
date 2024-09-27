@@ -24,6 +24,7 @@
     "react-hook-form": "^7.53.0",
     "react-imask": "^7.6.1",
     "react-papaparse": "^4.4.0",
+    "react-router-dom": "^6.26.2",
     "styled-components": "^6.1.13",
     "yup": "^1.4.0"
   },

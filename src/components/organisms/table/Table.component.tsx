@@ -123,7 +123,7 @@ export default function TableComponent(props: TableComponentProps) {
 }
 
 const GlassmorphismTable = styled(Table)`
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.09);

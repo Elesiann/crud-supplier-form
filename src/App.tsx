@@ -8,10 +8,27 @@ import MainPage from "./components/pages/main/main";
 import { GlobalStyle } from "./theme/GlobalStyle";
 import theme, { MANTINE_THEME_CONFIGS } from "./theme/theme";
 import { ModalsProvider } from "@mantine/modals";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { AuthenticationPage } from "./components/pages/authentication/authentication.page.tsx";
 
 export default function App() {
   const MantineTheme = createTheme(MANTINE_THEME_CONFIGS);
   const queryClient = new QueryClient();
+
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <AuthenticationPage />
+    },
+    {
+      path: "/login",
+      element: <AuthenticationPage />
+    },
+    {
+      path: "/main",
+      element: <MainPage />
+    }
+  ]);
 
   return (
     <>
@@ -21,7 +38,7 @@ export default function App() {
             <Notifications />
             <GlobalStyle />
             <ThemeProvider theme={theme}>
-              <MainPage />
+              <RouterProvider router={router} />
             </ThemeProvider>
           </ModalsProvider>
         </QueryClientProvider>
