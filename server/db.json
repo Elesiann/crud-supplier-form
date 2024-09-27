@@ -1,13 +1,69 @@
 {
-  "posts": [
-    { "id": "1", "title": "a title", "views": 100 },
-    { "id": "2", "title": "another title", "views": 200 }
-  ],
-  "comments": [
-    { "id": "1", "text": "a comment about post 1", "postId": "1" },
-    { "id": "2", "text": "another comment about post 1", "postId": "1" }
-  ],
-  "profile": {
-    "name": "typicode"
-  }
+  "supplier": [
+    {
+      "id": "c06b",
+      "contacts": [
+        {
+          "name": "caio theobaldus",
+          "phone": "48984262812"
+        },
+        {
+          "name": "asdasd",
+          "phone": "33333333333"
+        }
+      ],
+      "address": {
+        "zipCode": "88780000",
+        "state": "SC",
+        "city": "Imbituba",
+        "street": "asd",
+        "number": 3,
+        "reference": ""
+      },
+      "name": "giovani",
+      "description": "descricao"
+    },
+    {
+      "id": "45af",
+      "contacts": [
+        {
+          "name": "matheus theodoro",
+          "phone": "33333333333"
+        },
+        {
+          "name": "mamãe teodoro",
+          "phone": "99999999999"
+        }
+      ],
+      "address": {
+        "zipCode": "87303100",
+        "state": "PR",
+        "city": "Campo Mourão",
+        "street": "Avenida Comendador Norberto Marcondes",
+        "number": 39,
+        "reference": ""
+      },
+      "name": "caio theobaldo theodoro",
+      "description": "campo mourao"
+    },
+    {
+      "id": "de56",
+      "contacts": [
+        {
+          "name": "131234134",
+          "phone": "12222222222"
+        }
+      ],
+      "address": {
+        "zipCode": "88780000",
+        "state": "SC",
+        "city": "Imbituba",
+        "street": "asdasd",
+        "number": 3333333,
+        "reference": "asdasd"
+      },
+      "name": "novo supplier",
+      "description": "asiodasoidj"
+    }
+  ]
 }

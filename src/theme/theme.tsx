@@ -1,3 +1,5 @@
+import { MantineThemeOverride } from "@mantine/core";
+
 export const theme = {
   color: {
     primary: {
@@ -24,6 +26,15 @@ export const theme = {
     default: "1rem",
     big: "2rem",
     bigger: "3rem"
+  }
+};
+
+export const MANTINE_THEME_CONFIGS: MantineThemeOverride = {
+  primaryColor: "medium-blue",
+  colors: {
+    // https://mantine.dev/theming/colors/#adding-extra-colors
+    // https://mantine.dev/colors-generator/?color=0082f5
+    "medium-blue": ["#e4f6ff", "#cde9ff", "#9cd0ff", "#66b6fe", "#3da0fc", "#2593fc", "#0078e3", "#148cfe", "#006bcb", "#005cb4"]
   }
 };
 
