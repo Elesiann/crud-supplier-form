@@ -1,5 +1,6 @@
 import { Checkbox, SimpleGrid, Table } from "@mantine/core";
 import { PenBox, Trash } from "lucide-react";
+import styled from "styled-components";
 import { ISupplier } from "../../../types/Supplier.type";
 import phone_formatter from "../../../utils/phone_formatter";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.component";
@@ -48,8 +49,8 @@ export default function TableComponent(props: TableComponentProps) {
         <Table.Td>{`${street}, ${number}, ${city} - ${state}`}</Table.Td>
 
         <Table.Td>
-          <SimpleGrid cols={2}>
-            <PenBox cursor={"pointer"} size={24} onClick={() => props.onEdit(supplier)} />
+          <Grid cols={2}>
+            <PenBox className="edit" size={24} onClick={() => props.onEdit(supplier)} />
 
             <ConfirmationModal
               title="Delete supplier"
@@ -57,28 +58,60 @@ export default function TableComponent(props: TableComponentProps) {
               onCancel={() => null}
               onConfirm={() => props.onDelete(id)}
             >
-              <Trash cursor={"pointer"} size={24} />
+              <Trash className="delete" size={24} />
             </ConfirmationModal>
-          </SimpleGrid>
+          </Grid>
         </Table.Td>
       </Table.Tr>
     );
   });
 
   return (
-    <Table>
-      <Table.Thead>
-        <Table.Tr>
-          <Table.Th />
-          <Table.Th>ID</Table.Th>
-          <Table.Th>Name</Table.Th>
-          <Table.Th>Description</Table.Th>
-          <Table.Th>Contacts</Table.Th>
-          <Table.Th>Address</Table.Th>
-          <Table.Th>Actions</Table.Th>
-        </Table.Tr>
-      </Table.Thead>
-      <Table.Tbody>{rows}</Table.Tbody>
-    </Table>
+    <Table.ScrollContainer minWidth={800}>
+      <GlassmorphismTable horizontalSpacing="xl" verticalSpacing="lg">
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th />
+            <Table.Th>ID</Table.Th>
+            <Table.Th>Name</Table.Th>
+            <Table.Th>Description</Table.Th>
+            <Table.Th>Contacts</Table.Th>
+            <Table.Th>Address</Table.Th>
+            <Table.Th>Actions</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>{rows}</Table.Tbody>
+      </GlassmorphismTable>
+    </Table.ScrollContainer>
   );
 }
+
+const Grid = styled(SimpleGrid)`
+  .edit {
+    &:hover {
+      stroke: ${({ theme }) => theme.color.primary.lightBlue};
+    }
+  }
+
+  .delete {
+    &:hover {
+      stroke: ${({ theme }) => theme.color.secondary.red};
+    }
+  }
+
+  svg {
+    cursor: pointer;
+  }
+`;
+
+const GlassmorphismTable = styled(Table)`
+  border-radius: 1rem;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.09);
+
+  backdrop-filter: blur(3.9px);
+  -webkit-backdrop-filter: blur(3.9px);
+
+  padding: 2rem !important;
+`;

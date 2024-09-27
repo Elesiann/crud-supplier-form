@@ -2,11 +2,12 @@ import { Button, LoadingOverlay, rem, TextInput } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import { FileDown, PlusCircle, Search } from "lucide-react";
+import { FileDown, PackageOpen, PlusCircle, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useCSVDownloader } from "react-papaparse";
 import styled from "styled-components";
 import Supplier from "../../../api/Supplier";
+import theme from "../../../theme/theme";
 import { ISupplier } from "../../../types/Supplier.type";
 import { handleNotification } from "../../../utils/notification";
 import DrawerComponent from "../../molecules/drawer/Drawer.component";
@@ -136,18 +137,22 @@ const MainPage = () => {
     return (
       <Header>
         <TextInput
-          w={350}
+          w={"100%"}
           leftSection={<Search size={18} />}
           placeholder="Search by name, description, contact or address"
           value={searchValue}
           onChange={(event) => setSearchValue(event.currentTarget.value)}
         />
-        <Button leftSection={<PlusCircle size={18} />} onClick={open}>
-          New supplier
-        </Button>
         <CSVDownloader data={csvData} filename="suppliers" style={{ color: "white" }}>
-          <Button leftSection={<FileDown size={18} />}>Export CSV</Button>
+          <Button leftSection={<FileDown size={18} />}>
+            Export CSV {selectedRows.length > 0 ? `(${selectedRows.length})` : ""}
+          </Button>
         </CSVDownloader>
+        <div>
+          <Button leftSection={<PlusCircle size={18} />} onClick={open}>
+            New supplier
+          </Button>
+        </div>
       </Header>
     );
   };
@@ -160,7 +165,7 @@ const MainPage = () => {
           position="right"
           opened={opened}
           onClose={handleDrawerClose}
-          title="New supplier form"
+          title={selectedSupplier ? `Edit supplier` : "Register new supplier"}
         >
           <RegisterForm defaultValues={selectedSupplier} onFormSubmit={onFormSubmit} />
         </DrawerComponent>
@@ -179,6 +184,10 @@ const MainPage = () => {
 
   return (
     <Container>
+      <Title>
+        <h1>Giovani's supplier management app</h1>
+        <PackageOpen strokeWidth={1} color={theme.color.primary.white} size={48} />
+      </Title>
       {renderHeader()}
       {renderContent()}
     </Container>
@@ -187,14 +196,25 @@ const MainPage = () => {
 
 const Header = styled.div`
   display: flex;
-  justify-content: end;
-  margin-bottom: 2rem;
   gap: 1.25rem;
+  margin-bottom: 2rem;
+`;
+
+const Title = styled.div`
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    color: ${({ theme }) => theme.color.primary.white};
+    text-align: start;
+  }
 `;
 
 const Container = styled.div`
-  padding: 4rem;
-  max-width: 1200px;
+  padding: 2rem 4rem;
+  max-width: 1400px;
   margin: 0 auto;
 `;
 
