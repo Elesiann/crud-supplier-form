@@ -15,11 +15,14 @@ import {
   Title
 } from "@mantine/core";
 import { upperFirst, useToggle } from "@mantine/hooks";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
+import Google from "../../../api/Google";
+import { useAuth } from "../../../hooks/useAuth";
 import theme from "../../../theme/theme";
+import { handleNotification } from "../../../utils/notification";
 import { GoogleButton } from "../../atoms/GoogleButton/GoogleButton.component";
-
 interface IAuthentication {
   email: string;
   password: string;
@@ -36,6 +39,7 @@ const AuthenticationFormSchema = yup.object().shape({
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, toggle] = useToggle(["login", "register"]);
+  const { login: authLogin } = useAuth();
 
   const { register, handleSubmit } = useForm<IAuthentication>({
     resolver: yupResolver(AuthenticationFormSchema),
@@ -51,16 +55,28 @@ export function AuthenticationForm(props: PaperProps) {
     console.log(data);
   };
 
+  const login = useGoogleLogin({
+    onSuccess: async (response) =>
+      await Google.getUserInfo(response.access_token).then((res) => authLogin(res)),
+    onError: (error) =>
+      handleNotification("Error in Google authentication", JSON.stringify(error), "red")
+  });
+
   return (
     <Paper radius="md" {...props}>
       <Image src={"/logo_dark.png"} />
 
       <Title order={2} ta={"center"}>
-        Welcome! {type} with
+        Welcome! {upperFirst(type)} with
       </Title>
 
       <Group grow mb="md" mt="md">
-        <GoogleButton className="google_button" color={theme.color.secondary.gray} radius="xl">
+        <GoogleButton
+          onClick={() => login()}
+          className="google_button"
+          color={theme.color.secondary.gray}
+          radius="xl"
+        >
           Google
         </GoogleButton>
       </Group>
