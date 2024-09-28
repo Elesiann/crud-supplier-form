@@ -1,9 +1,10 @@
-import { Checkbox, Menu, Table } from "@mantine/core";
+import { ActionIcon, Checkbox, Menu, Table } from "@mantine/core";
 import { CircleEllipsis, MapPin, PencilLine, PhoneOutgoing, Trash } from "lucide-react";
 import styled from "styled-components";
 import { ISupplier } from "../../../types/Supplier.type";
 import phone_formatter from "../../../utils/phone_formatter";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.component";
+import theme from "../../../theme/theme";
 
 interface TableComponentProps {
   data: ISupplier[];
@@ -24,7 +25,9 @@ export default function TableComponent(props: TableComponentProps) {
     return (
       <Menu shadow="md" position="bottom-end" width={200}>
         <Menu.Target>
-          <CircleEllipsis cursor={"pointer"} size={24} />
+          <ActionIcon size="lg" color={theme.color.primary.white} variant="subtle" radius="md">
+            <CircleEllipsis cursor={"pointer"} size={24} />
+          </ActionIcon>
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item
