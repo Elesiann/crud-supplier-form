@@ -51,7 +51,8 @@ const Content = styled.div`
     color: ${(props) => props.theme.color.primary.lightBlue};
   }
 
-  @media (max-width: $mantine-breakpoint-sm) {
+  @media (max-width: 768px) {
     max-width: 100%;
+    padding: 1.5rem;
   }
 `;

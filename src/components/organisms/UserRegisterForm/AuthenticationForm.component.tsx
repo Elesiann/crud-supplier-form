@@ -206,8 +206,14 @@ export function AuthenticationForm(props: PaperProps) {
               ? "Already have an account? Login"
               : "Don't have an account? Register"}
           </Anchor>
-          <Button type="submit">
-            <Text size="sm" fw={600} c={theme.color.primary.white}>
+          <Button
+            w={{
+              base: "100%",
+              sm: "auto"
+            }}
+            type="submit"
+          >
+            <Text fw={600} c={theme.color.primary.white}>
               {upperFirst(type)}
             </Text>
           </Button>

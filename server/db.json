@@ -4,43 +4,43 @@
       "id": "c06b",
       "contacts": [
         {
-          "name": "asdasdasd",
-          "phone": "48984262812"
+          "name": "Contact 1",
+          "phone": "33333333333"
         },
         {
-          "name": "asdasd",
-          "phone": "33333333333"
+          "name": "Contact 2",
+          "phone": "22222222222"
         }
       ],
       "address": {
         "zipCode": "88780000",
         "state": "SC",
         "city": "Imbituba",
-        "street": "asd",
-        "number": 3,
+        "street": "Street 1",
+        "number": 242,
         "reference": ""
       },
-      "name": "giovani",
-      "description": "descricao"
+      "name": "Supplier 1",
+      "description": "Description"
     },
     {
       "id": "45af",
       "contacts": [
         {
-          "name": "dddddddddddddd",
+          "name": "Supplier 2 contact",
           "phone": "11111111111"
         }
       ],
       "address": {
-        "zipCode": "87303100",
-        "state": "PR",
-        "city": "Campo Mourão",
-        "street": "Avenida Comendador Norberto Marcondes",
+        "zipCode": "00000000",
+        "state": "NY",
+        "city": "New York City",
+        "street": "North East Avenue",
         "number": 39,
         "reference": ""
       },
-      "name": "supplier de campo mourao",
-      "description": "de campo mourao"
+      "name": "Supplier 2",
+      "description": "Supplier 2 description "
     }
   ]
 }

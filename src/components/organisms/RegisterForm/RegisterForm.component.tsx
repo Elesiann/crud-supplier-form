@@ -154,19 +154,21 @@ export default function RegisterForm(props: RegisterFormProps) {
               error={errors.contacts?.[index]?.phone?.message}
             />
             <Button
+              className="remove_contact_button"
               disabled={contactFields.length === 1}
               variant="outline"
               color="red"
               mb={errors.contacts?.[index] && 19}
               onClick={() => contactFields.length > 1 && removeContact(index)}
             >
-              <X />
+              <X size={18} />
             </Button>
           </ContactGrid>
         ))}
         <Button
           leftSection={<PlusCircle size={18} />}
           mt={24}
+          fullWidth
           onClick={() => appendContact({ name: "", phone: "" })}
         >
           Add another contact
@@ -176,7 +178,7 @@ export default function RegisterForm(props: RegisterFormProps) {
       <div>
         <h2>Address</h2>
         <div>
-          <SimpleGrid cols={3} mb={8}>
+          <SimpleGrid cols={{ base: 1, sm: 3, lg: 3 }} spacing={8} mb={8}>
             <InputBase
               component={IMaskInput}
               mask="00000-000"
@@ -210,7 +212,7 @@ export default function RegisterForm(props: RegisterFormProps) {
             />
           </SimpleGrid>
 
-          <SimpleGrid cols={2} mb={8}>
+          <SimpleGrid cols={2} mb={8} spacing={8}>
             <TextInput
               disabled={disabledFields.street}
               label="Street"
@@ -256,4 +258,10 @@ const ContactGrid = styled.div`
   grid-template-columns: 3fr 3fr 1fr;
   align-items: end;
   gap: 0.5rem;
+
+  .remove_contact_button {
+    @media (max-width: 480px) {
+      padding: unset;
+    }
+  }
 `;

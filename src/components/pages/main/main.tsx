@@ -1,4 +1,4 @@
-import { Button, Image, LoadingOverlay, rem, TextInput } from "@mantine/core";
+import { Button, Image, LoadingOverlay, rem, Text, TextInput } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
@@ -144,16 +144,18 @@ const MainPage = () => {
           value={searchValue}
           onChange={(event) => setSearchValue(event.currentTarget.value)}
         />
-        <CSVDownloader data={csvData} filename="suppliers" style={{ color: "white" }}>
-          <Button leftSection={<FileDown size={18} />}>
-            Export CSV {selectedRows.length > 0 ? `(${selectedRows.length})` : ""}
-          </Button>
-        </CSVDownloader>
-        <div>
-          <Button leftSection={<PlusCircle size={18} />} onClick={open}>
-            New supplier
-          </Button>
-        </div>
+        <ButtonContainer>
+          <CSVDownloader data={csvData} filename="suppliers">
+            <Button leftSection={<FileDown size={18} />}>
+              Export CSV {selectedRows.length > 0 ? `(${selectedRows.length})` : ""}
+            </Button>
+          </CSVDownloader>
+          <div>
+            <Button leftSection={<PlusCircle size={18} />} onClick={open}>
+              New supplier
+            </Button>
+          </div>
+        </ButtonContainer>
       </Header>
     );
   };
@@ -186,15 +188,15 @@ const MainPage = () => {
   return (
     <Container>
       <Title>
-        <Image w={250} src={"/logo_white.png"} />
-        <div>
-          <span>
-            Logged as <b>{user?.name}</b>
-          </span>
+        <Image w={250} visibleFrom="sm" src={"/logo_white.png"} />
+        <LoggedContainer>
+          <Text lh={1.25}>
+            Logged as <br /> <b>{user?.name}</b>
+          </Text>
           <Button leftSection={<LogOut size={18} />} onClick={() => logout()}>
             Logout
           </Button>
-        </div>
+        </LoggedContainer>
       </Title>
       <Title>
         <h1>Suppliers</h1>
@@ -209,6 +211,45 @@ const Header = styled.div`
   display: flex;
   gap: 1.25rem;
   margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+    gap: 1rem;
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 1rem;
+
+  button {
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+
+    a,
+    div {
+      width: 100%;
+    }
+
+    button {
+      background-color: ${({ theme }) => theme.color.primary.lightBlue};
+      color: ${({ theme }) => theme.color.primary.white};
+    }
+  }
+`;
+
+const LoggedContainer = styled.div`
+  @media (max-width: 480px) {
+    p {
+      display: block;
+    }
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
 `;
 
 const Title = styled.div`
@@ -233,6 +274,15 @@ const Title = styled.div`
       text-transform: capitalize;
     }
   }
+
+  @media (max-width: 768px) {
+    gap: 1;
+
+    div {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
 `;
 
 const Container = styled.div`
@@ -240,6 +290,10 @@ const Container = styled.div`
   max-width: 1400px;
   margin: 0 auto;
   min-height: 100dvh;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
 `;
 
 const Content = styled.div`
