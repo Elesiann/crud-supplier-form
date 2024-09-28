@@ -25,6 +25,11 @@ const Content = styled.div`
   background-color: ${(props) => props.theme.color.primary.white};
   padding: 2rem;
 
+  img {
+    max-width: 250px;
+    margin: 0 auto 2rem auto;
+  }
+
   h2,
   label,
   span,

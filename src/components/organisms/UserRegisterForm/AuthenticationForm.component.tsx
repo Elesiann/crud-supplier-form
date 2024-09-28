@@ -5,6 +5,7 @@ import {
   Checkbox,
   Divider,
   Group,
+  Image,
   Paper,
   PaperProps,
   PasswordInput,
@@ -52,8 +53,10 @@ export function AuthenticationForm(props: PaperProps) {
 
   return (
     <Paper radius="md" {...props}>
+      <Image src={"/logo_dark.png"} />
+
       <Title order={2} ta={"center"}>
-        Welcome to Supplier Manage App, {type} with
+        Welcome! {type} with
       </Title>
 
       <Group grow mb="md" mt="md">

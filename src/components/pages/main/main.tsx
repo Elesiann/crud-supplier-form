@@ -1,13 +1,12 @@
-import { Button, LoadingOverlay, rem, TextInput } from "@mantine/core";
+import { Button, Image, LoadingOverlay, rem, TextInput } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import { FileDown, PackageOpen, PlusCircle, Search } from "lucide-react";
+import { FileDown, PlusCircle, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useCSVDownloader } from "react-papaparse";
 import styled from "styled-components";
 import Supplier from "../../../api/Supplier";
-import theme from "../../../theme/theme";
 import { ISupplier } from "../../../types/Supplier.type";
 import { handleNotification } from "../../../utils/notification";
 import DrawerComponent from "../../molecules/drawer/Drawer.component";
@@ -185,8 +184,7 @@ const MainPage = () => {
   return (
     <Container>
       <Title>
-        <h1>Giovani's supplier management app</h1>
-        <PackageOpen strokeWidth={1} color={theme.color.primary.white} size={48} />
+        <Image w={250} src={"/logo_white.png"} />
       </Title>
       {renderHeader()}
       {renderContent()}

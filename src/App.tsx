@@ -10,23 +10,44 @@ import theme, { MANTINE_THEME_CONFIGS } from "./theme/theme";
 import { ModalsProvider } from "@mantine/modals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AuthenticationPage } from "./components/pages/authentication/authentication.page.tsx";
+import { Helmet } from "react-helmet";
 
 export default function App() {
   const MantineTheme = createTheme(MANTINE_THEME_CONFIGS);
   const queryClient = new QueryClient();
 
+  const AuthPageElement = () => {
+    return (
+      <>
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>supp.li | Authentication</title>
+        </Helmet>
+        <AuthenticationPage />
+      </>
+    );
+  };
+
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <AuthenticationPage />
+      element: <AuthPageElement />
     },
     {
       path: "/login",
-      element: <AuthenticationPage />
+      element: <AuthPageElement />
     },
     {
       path: "/main",
-      element: <MainPage />
+      element: (
+        <>
+          <Helmet>
+            <meta charSet="utf-8" />
+            <title>supp.li | Suppliers</title>
+          </Helmet>
+          <MainPage />
+        </>
+      )
     }
   ]);
 
