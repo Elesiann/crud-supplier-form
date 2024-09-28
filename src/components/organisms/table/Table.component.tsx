@@ -3,6 +3,7 @@ import { CircleEllipsis, MapPin, PencilLine, PhoneOutgoing, Trash } from "lucide
 import styled from "styled-components";
 import { ISupplier } from "../../../types/Supplier.type";
 import phone_formatter from "../../../utils/phone_formatter";
+import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.component";
 
 interface TableComponentProps {
   data: ISupplier[];
@@ -52,14 +53,16 @@ export default function TableComponent(props: TableComponentProps) {
             See location
           </Menu.Item>
           <Menu.Divider />
-          <Menu.Item
-            onClick={() => {
-              props.onDelete(supplier.id);
-            }}
-            color="red"
-            leftSection={<Trash size={18} />}
-          >
-            Delete supplier
+
+          <Menu.Item color="red" leftSection={<Trash size={18} />}>
+            <ConfirmationModal
+              onConfirm={() => props.onDelete(supplier.id)}
+              onCancel={() => {}}
+              title="Delete supplier"
+              text="Are you sure you want to delete this supplier? This action is irreversible."
+            >
+              Delete supplier
+            </ConfirmationModal>
           </Menu.Item>
         </Menu.Dropdown>
       </Menu>
