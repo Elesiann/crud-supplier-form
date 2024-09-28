@@ -21,6 +21,13 @@ Install dependencies:
 npm install
 ```
 
+Run project:
+
+```bash
+npm run dev
+```
+
+
 Run json-server database:
 
 ```bash
