@@ -1,7 +1,16 @@
 import styled from "styled-components";
 import { AuthenticationForm } from "../../organisms/UserRegisterForm/AuthenticationForm.component";
+import { useEffect } from "react";
+import { useAuth } from "../../../hooks/useAuth";
 
 export function AuthenticationPage() {
+  const { user } = useAuth();
+  useEffect(() => {
+    if (user) {
+      window.location.href = "/main";
+    }
+  }, []);
+
   return (
     <Wrapper>
       <Content>

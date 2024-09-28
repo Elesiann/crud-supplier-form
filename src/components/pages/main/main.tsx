@@ -2,11 +2,12 @@ import { Button, Image, LoadingOverlay, rem, TextInput } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import { FileDown, PlusCircle, Search } from "lucide-react";
+import { FileDown, LogOut, PlusCircle, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useCSVDownloader } from "react-papaparse";
 import styled from "styled-components";
 import Supplier from "../../../api/Supplier";
+import { useAuth } from "../../../hooks/useAuth";
 import { ISupplier } from "../../../types/Supplier.type";
 import { handleNotification } from "../../../utils/notification";
 import DrawerComponent from "../../molecules/drawer/Drawer.component";
@@ -19,6 +20,7 @@ const MainPage = () => {
   const [searchValue, setSearchValue] = useState("");
   const [debounced] = useDebouncedValue(searchValue, 500);
   const [selectedRows, setSelectedRows] = useState<ISupplier[]>([]);
+  const { user, logout } = useAuth();
 
   const { CSVDownloader } = useCSVDownloader();
 
@@ -185,6 +187,17 @@ const MainPage = () => {
     <Container>
       <Title>
         <Image w={250} src={"/logo_white.png"} />
+        <div>
+          <span>
+            Logged as <b>{user?.name}</b>
+          </span>
+          <Button leftSection={<LogOut size={18} />} onClick={() => logout()}>
+            Logout
+          </Button>
+        </div>
+      </Title>
+      <Title>
+        <h1>Suppliers</h1>
       </Title>
       {renderHeader()}
       {renderContent()}
@@ -199,7 +212,6 @@ const Header = styled.div`
 `;
 
 const Title = styled.div`
-  margin-bottom: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -207,6 +219,19 @@ const Title = styled.div`
   h1 {
     color: ${({ theme }) => theme.color.primary.white};
     text-align: start;
+  }
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    * {
+      color: ${({ theme }) => theme.color.primary.white};
+    }
+
+    b {
+      text-transform: capitalize;
+    }
   }
 `;
 

@@ -2,16 +2,15 @@ import { createContext, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "./useLocalStorage";
 
-interface IUser {
+export interface IUser {
   id: string;
   email: string;
   name: string;
-
   picture?: string;
 }
 
 const AuthContext = createContext({
-  user: null,
+  user: null as IUser | null,
   login: async (_data: IUser) => {},
   logout: () => {}
 });

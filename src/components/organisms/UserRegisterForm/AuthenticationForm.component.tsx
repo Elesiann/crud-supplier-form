@@ -2,10 +2,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Anchor,
   Button,
-  Checkbox,
   Divider,
   Group,
   Image,
+  LoadingOverlay,
   Paper,
   PaperProps,
   PasswordInput,
@@ -14,56 +14,147 @@ import {
   TextInput,
   Title
 } from "@mantine/core";
-import { upperFirst, useToggle } from "@mantine/hooks";
-import { useGoogleLogin } from "@react-oauth/google";
+import { upperFirst, useDisclosure, useToggle } from "@mantine/hooks";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  updateProfile
+} from "firebase/auth";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
-import Google from "../../../api/Google";
-import { useAuth } from "../../../hooks/useAuth";
+import { IUser, useAuth } from "../../../hooks/useAuth";
 import theme from "../../../theme/theme";
 import { handleNotification } from "../../../utils/notification";
 import { GoogleButton } from "../../atoms/GoogleButton/GoogleButton.component";
+import { auth, googleProvider } from "./firebase";
+
 interface IAuthentication {
   email: string;
   password: string;
   name: string;
-  terms: boolean;
 }
-
-const AuthenticationFormSchema = yup.object().shape({
-  email: yup.string().email().required(),
-  password: yup.string().min(6).required(),
-  name: yup.string().required(),
-  terms: yup.boolean().required()
-});
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, toggle] = useToggle(["login", "register"]);
+  const [openedLoading, { open: openLoading, close: closeLoading }] = useDisclosure(false);
   const { login: authLogin } = useAuth();
 
-  const { register, handleSubmit } = useForm<IAuthentication>({
-    resolver: yupResolver(AuthenticationFormSchema),
+  const loginSchema = yup.object().shape({
+    email: yup.string().email("Invalid email format").required("Email is required"),
+    password: yup
+      .string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters long")
+  });
+
+  const registerSchema = yup.object().shape({
+    name: yup.string().required("Name is required"),
+    email: yup.string().email("Invalid email format").required(),
+    password: yup
+      .string()
+      .required("Password is required")
+      .min(6, "Password must be at least 6 characters long")
+  });
+
+  const getValidationSchema = type === "register" ? registerSchema : loginSchema;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<IAuthentication>({
+    resolver: yupResolver(getValidationSchema as any),
     defaultValues: {
       email: "",
       password: "",
-      name: "",
-      terms: false
+      name: ""
     }
   });
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: IAuthentication) => {
+    openLoading();
+    if (type === "register") {
+      await createUserWithEmailAndPassword(auth, data.email, data.password)
+        .then((res) =>
+          updateProfile(res.user, {
+            displayName: data.name
+          })
+        )
+        .then(() => {
+          const userData: IUser = {
+            name: data.name,
+            email: data.email,
+            id: data.email
+          };
+          authLogin(userData);
+        })
+        .catch((error) =>
+          handleNotification("Error in authentication", JSON.stringify(error), "red")
+        );
+
+      return;
+    }
+
+    await signInWithEmailAndPassword(auth, data.email, data.password)
+      .then((res) => {
+        const userData: IUser = {
+          name: res.user?.displayName || "",
+          email: res.user?.email || "",
+          id: res.user?.email || ""
+        };
+        authLogin(userData);
+      })
+      .catch((error) => {
+        let errMsg = "";
+
+        if (error.code === "auth/invalid-credential") {
+          errMsg = "Invalid credentials. Please try again.";
+        }
+        if (error.code === "auth/user-not-found") {
+          errMsg = "Usuário não encontrado";
+        }
+        if (error.code === "auth/wrong-password") {
+          errMsg = "Senha incorreta";
+        }
+        if (error.code === "auth/too-many-requests") {
+          errMsg = "Muitas tentativas. Tente novamente mais tarde";
+        }
+
+        handleNotification("Error trying to login", errMsg, "red");
+      });
+
+    closeLoading();
   };
 
-  const login = useGoogleLogin({
-    onSuccess: async (response) =>
-      await Google.getUserInfo(response.access_token).then((res) => authLogin(res)),
-    onError: (error) =>
-      handleNotification("Error in Google authentication", JSON.stringify(error), "red")
-  });
+  const loginWithGoogle = () => {
+    openLoading();
+    signInWithPopup(auth, googleProvider)
+      .then((result) => {
+        const user = result.user;
+        if (user.displayName && user.email) {
+          const userData: IUser = {
+            name: user.displayName,
+            email: user.email,
+            id: user.email
+          };
+          authLogin(userData);
+        }
+      })
+      .catch((error) => {
+        handleNotification("Error in Google authentication", JSON.stringify(error), "red");
+      })
+      .finally(() => {
+        closeLoading();
+      });
+  };
 
   return (
     <Paper radius="md" {...props}>
+      {openedLoading && (
+        <LoadingOverlay visible zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+      )}
+
       <Image src={"/logo_dark.png"} />
 
       <Title order={2} ta={"center"}>
@@ -72,7 +163,7 @@ export function AuthenticationForm(props: PaperProps) {
 
       <Group grow mb="md" mt="md">
         <GoogleButton
-          onClick={() => login()}
+          onClick={() => loginWithGoogle()}
           className="google_button"
           color={theme.color.secondary.gray}
           radius="xl"
@@ -86,26 +177,27 @@ export function AuthenticationForm(props: PaperProps) {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack>
           {type === "register" && (
-            <TextInput required label="Name" placeholder="Your name" {...register("name")} />
+            <TextInput
+              label="Name"
+              placeholder="Your name"
+              {...register("name")}
+              error={errors.name?.message}
+            />
           )}
 
           <TextInput
-            required
             label="Email"
             placeholder="johndoe@example.com"
             {...register("email")}
+            error={errors?.email?.message}
           />
 
           <PasswordInput
-            required
             label="Password"
             placeholder="Your password"
             {...register("password")}
+            error={errors?.password?.message}
           />
-
-          {type === "register" && (
-            <Checkbox label="I accept terms and conditions" {...register("terms")} />
-          )}
         </Stack>
 
         <Group justify="space-between" mt="xl">
