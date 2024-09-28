@@ -2,7 +2,7 @@ import * as yup from "yup";
 
 export const supplierFormSchema = yup.object().shape({
   name: yup.string().required("Name is required"),
-  description: yup.string().required("Description is required"),
+  description: yup.string(),
   contacts: yup
     .array()
     .of(
