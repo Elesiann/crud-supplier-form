@@ -214,6 +214,7 @@ const Container = styled.div`
   padding: 2rem 4rem;
   max-width: 1400px;
   margin: 0 auto;
+  min-height: 100dvh;
 `;
 
 const Content = styled.div`

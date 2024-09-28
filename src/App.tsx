@@ -14,6 +14,7 @@ import { ProtectedRoute } from "./components/templates/ProtectedRoute/ProtectedR
 import { AuthProvider } from "./hooks/useAuth.tsx";
 import { GlobalStyle } from "./theme/GlobalStyle";
 import theme, { MANTINE_THEME_CONFIGS } from "./theme/theme";
+import { FooterCentered } from "./components/molecules/footer/footer.component.tsx";
 
 export default function App() {
   const MantineTheme = createTheme(MANTINE_THEME_CONFIGS);
@@ -27,6 +28,7 @@ export default function App() {
           <title>supp.li | Authentication</title>
         </Helmet>
         <AuthenticationPage />
+        <FooterCentered />
       </AuthProvider>
     );
   };
@@ -40,6 +42,7 @@ export default function App() {
         </Helmet>
         <ProtectedRoute>
           <MainPage />
+          <FooterCentered />
         </ProtectedRoute>
       </AuthProvider>
     );
