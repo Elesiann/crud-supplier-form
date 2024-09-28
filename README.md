@@ -1,50 +1,41 @@
-# React + TypeScript + Vite
+ <img src="https://github.com/user-attachments/assets/5263a746-1e09-44ca-8998-1fa9e3e94bfd" width="175"> 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<h1> Welcome to Supp.li! </h1>
 
-Currently, two official plugins are available:
+This is a CRUD SPA to manage your business' suppliers in a simple way!
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The project is entirely made in React + Typescript, using Mantine as the main component library and styled-components for extra styling!
+I've also used React Router, Firebase Auth to handle user authentication and for now, JSON-server as a mockup for entities.
 
-## Expanding the ESLint configuration
+## Install and Run
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+Clone project:
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+git clone https://github.com/Elesiann/supp.li.git
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Install dependencies:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+npm install
 ```
+
+Run json-server database:
+
+```bash
+cd server ; npx json-server db.json
+```
+
+## Take a look at some screenshots!
+
+### Main table
+![Main table](https://github.com/user-attachments/assets/5a05e587-bb65-4e3e-8caa-783de83854d8)
+
+### Supplier register form
+![Supplier register form](https://github.com/user-attachments/assets/74a56c14-684d-4821-8428-62c8d8ba4e3a)
+
+### Login/register page
+![Login page](https://github.com/user-attachments/assets/b8132196-4ef9-4533-b46d-d8980eb528f2)
+
+![Footer](https://github.com/user-attachments/assets/c6380683-c4cd-4092-9941-68fe2ba8544d)
