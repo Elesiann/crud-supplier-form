@@ -113,7 +113,7 @@ export default function SupplierRegisterFormProps(props: SupplierRegisterFormPro
       <div>
         <TextInput
           mb={8}
-          label="Name"
+          label="Name *"
           placeholder="Enter supplier's name"
           {...register("name")}
           error={errors.name?.message}
@@ -134,7 +134,7 @@ export default function SupplierRegisterFormProps(props: SupplierRegisterFormPro
         {contactFields.map((item, index) => (
           <ContactGrid key={item.id}>
             <TextInput
-              label="Name"
+              label="Name *"
               placeholder="Enter contact's name"
               {...register(`contacts.${index}.name` as const)}
               error={errors.contacts?.[index]?.name?.message}
@@ -142,7 +142,7 @@ export default function SupplierRegisterFormProps(props: SupplierRegisterFormPro
             <InputBase
               component={IMaskInput}
               mask="(00) 00000-0000"
-              label="Phone"
+              label="Phone *"
               placeholder="Enter contact's phone number"
               {...register(`contacts.${index}.phone` as const)}
               defaultValue={item.phone}
@@ -181,7 +181,7 @@ export default function SupplierRegisterFormProps(props: SupplierRegisterFormPro
             <InputBase
               component={IMaskInput}
               mask="00000-000"
-              label="ZIP Code"
+              label="ZIP Code *"
               placeholder="Enter ZIP code"
               {...register(`address.zipCode` as const)}
               defaultValue={props.defaultValues?.address.zipCode}
@@ -196,7 +196,7 @@ export default function SupplierRegisterFormProps(props: SupplierRegisterFormPro
 
             <TextInput
               disabled={disabledFields.state}
-              label="State"
+              label="State *"
               placeholder="Enter state"
               {...register(`address.state` as const)}
               error={errors.address?.state?.message}
@@ -204,7 +204,7 @@ export default function SupplierRegisterFormProps(props: SupplierRegisterFormPro
 
             <TextInput
               disabled={disabledFields.city}
-              label="City"
+              label="City *"
               placeholder="Enter city"
               {...register(`address.city` as const)}
               error={errors.address?.city?.message}
@@ -214,7 +214,7 @@ export default function SupplierRegisterFormProps(props: SupplierRegisterFormPro
           <SimpleGrid cols={2} mb={8} spacing={8}>
             <TextInput
               disabled={disabledFields.street}
-              label="Street"
+              label="Street *"
               placeholder="Enter street"
               {...register(`address.street` as const)}
               error={errors.address?.street?.message}
@@ -222,7 +222,7 @@ export default function SupplierRegisterFormProps(props: SupplierRegisterFormPro
 
             <TextInput
               disabled={disabledFields.number}
-              label="Number"
+              label="Number *"
               placeholder="Enter number"
               {...register(`address.number`, { valueAsNumber: true } as const)}
               error={errors.address?.number?.message}
