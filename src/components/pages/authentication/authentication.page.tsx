@@ -42,7 +42,7 @@ const Content = styled.div`
   h2,
   label,
   span,
-  p {
+  p:not(.mantine-TextInput-error) {
     color: ${(props) => props.theme.color.secondary.gray};
   }
 

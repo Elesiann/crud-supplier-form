@@ -10,12 +10,12 @@ import { ISupplier } from "../../../types/Supplier.type";
 import { handleNotification } from "../../../utils/notification";
 import { supplierFormSchema } from "./schema";
 
-interface RegisterFormProps {
+interface SupplierRegisterFormProps {
   onFormSubmit: (data: ISupplier) => void;
   defaultValues?: ISupplier;
 }
 
-export default function RegisterForm(props: RegisterFormProps) {
+export default function SupplierRegisterFormProps(props: SupplierRegisterFormProps) {
   const [loading, setLoading] = useState(false);
   const [disabledFields, setDisabledFields] = useState({
     city: true,
@@ -71,30 +71,29 @@ export default function RegisterForm(props: RegisterFormProps) {
 
     try {
       setLoading(true);
-      const data = await ViaCep.getZipCode(zipCode);
+      const response = await ViaCep.getZipCode(zipCode);
 
-      if (!data.erro) {
-        const { localidade, uf, logradouro } = data;
-
-        handleSetFieldValue("address.city", localidade, setDisabledFields);
-        handleSetFieldValue("address.state", uf, setDisabledFields);
-        handleSetFieldValue("address.street", logradouro, setDisabledFields);
-
-        setDisabledFields((prev) => ({ ...prev, number: !dirtyFields?.address?.zipCode }));
-
-        handleSetError("address.zipCode", "");
-
-        handleNotification("Address data fetched", "Address data fetched successfully", "green");
-
+      if ("error" in response) {
+        handleSetError("address.zipCode", "Invalid ZIP code");
+        handleNotification(
+          "Invalid ZIP code",
+          "Failed to fetch address data. Please check the ZIP code",
+          "red"
+        );
         return;
       }
 
-      handleSetError("address.zipCode", "Invalid ZIP code");
-      handleNotification(
-        "Invalid ZIP code",
-        "Failed to fetch address data. Please check the ZIP code",
-        "red"
-      );
+      const { localidade, uf, logradouro } = response;
+
+      handleSetFieldValue("address.city", localidade, setDisabledFields);
+      handleSetFieldValue("address.state", uf, setDisabledFields);
+      handleSetFieldValue("address.street", logradouro, setDisabledFields);
+
+      setDisabledFields((prev) => ({ ...prev, number: !dirtyFields?.address?.zipCode }));
+
+      handleSetError("address.zipCode", "");
+
+      handleNotification("Address data fetched", "Address data fetched successfully!F", "green");
     } catch (error) {
       handleNotification("Address data fetch failed", "Failed to fetch address data.", "red");
     } finally {

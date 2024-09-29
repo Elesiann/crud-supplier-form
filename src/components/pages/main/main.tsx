@@ -9,20 +9,21 @@ import styled from "styled-components";
 import Supplier from "../../../api/Supplier";
 import { useAuth } from "../../../hooks/useAuth";
 import { ISupplier } from "../../../types/Supplier.type";
+import handle_csv_export from "../../../utils/handle_csv_export";
 import { handleNotification } from "../../../utils/notification";
 import DrawerComponent from "../../molecules/drawer/Drawer.component";
-import RegisterForm from "../../organisms/RegisterForm/RegisterForm.component";
+import SupplierRegisterForm from "../../organisms/RegisterForm/SupplierRegisterForm.component";
 import TableComponent from "../../organisms/Table/Table.component";
 
 const MainPage = () => {
-  const [opened, { open, close }] = useDisclosure(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<ISupplier>();
-  const [searchValue, setSearchValue] = useState("");
-  const [debounced] = useDebouncedValue(searchValue, 500);
-  const [selectedRows, setSelectedRows] = useState<ISupplier[]>([]);
   const { user, logout } = useAuth();
-
   const { CSVDownloader } = useCSVDownloader();
+  const [openedDrawer, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<ISupplier>();
+  const [selectedRows, setSelectedRows] = useState<ISupplier[]>([]);
+  const [searchValue, setSearchValue] = useState("");
+
+  const [debounced] = useDebouncedValue(searchValue, 500);
 
   const queryClient = useQueryClient();
 
@@ -111,24 +112,7 @@ const MainPage = () => {
 
   const handleDrawerClose = () => {
     setSelectedSupplier(undefined);
-    close();
-  };
-
-  const payloadToExport = selectedRows.length > 0 ? selectedRows : rows;
-
-  const csvData = {
-    fields: ["name", "description", "contacts", "address"],
-    data: payloadToExport?.map((row) => {
-      const { name, description, contacts, address } = row;
-      const { street, number, city, state } = address;
-
-      return {
-        name,
-        description,
-        contacts: contacts.map((contact) => `${contact.name} - ${contact.phone}`).join(", "),
-        address: `${street}, ${number}, ${city}, ${state}`
-      };
-    })
+    closeDrawer();
   };
 
   if (isLoading && !data)
@@ -145,13 +129,16 @@ const MainPage = () => {
           onChange={(event) => setSearchValue(event.currentTarget.value)}
         />
         <ButtonContainer>
-          <CSVDownloader data={csvData} filename="suppliers">
+          <CSVDownloader
+            data={() => handle_csv_export({ selectedRows, rows })}
+            filename="suppliers"
+          >
             <Button leftSection={<FileDown size={18} />}>
               Export CSV {selectedRows.length > 0 ? `(${selectedRows.length})` : ""}
             </Button>
           </CSVDownloader>
           <div>
-            <Button leftSection={<PlusCircle size={18} />} onClick={open}>
+            <Button leftSection={<PlusCircle size={18} />} onClick={openDrawer}>
               New supplier
             </Button>
           </div>
@@ -166,11 +153,11 @@ const MainPage = () => {
         <DrawerComponent
           size={rem(600)}
           position="right"
-          opened={opened}
+          opened={openedDrawer}
           onClose={handleDrawerClose}
           title={selectedSupplier ? `Edit supplier` : "Register new supplier"}
         >
-          <RegisterForm defaultValues={selectedSupplier} onFormSubmit={onFormSubmit} />
+          <SupplierRegisterForm defaultValues={selectedSupplier} onFormSubmit={onFormSubmit} />
         </DrawerComponent>
         {data && (
           <TableComponent
@@ -238,6 +225,10 @@ const ButtonContainer = styled.div`
       background-color: ${({ theme }) => theme.color.primary.lightBlue};
       color: ${({ theme }) => theme.color.primary.white};
     }
+  }
+
+  @media (max-width: 380px) {
+    flex-direction: column;
   }
 `;
 

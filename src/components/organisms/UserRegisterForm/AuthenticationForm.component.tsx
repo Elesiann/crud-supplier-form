@@ -15,49 +15,21 @@ import {
   Title
 } from "@mantine/core";
 import { upperFirst, useDisclosure, useToggle } from "@mantine/hooks";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  updateProfile
-} from "firebase/auth";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { IUser, useAuth } from "../../../hooks/useAuth";
+import { useAuth } from "../../../hooks/useAuth";
 import theme from "../../../theme/theme";
-import { handleNotification } from "../../../utils/notification";
+import { AuthenticationType, IAuthentication } from "../../../types/Authentication.type";
+import { authenticationHandler, googleSignInHandler } from "../../../utils/authentication_handler";
 import { GoogleButton } from "../../atoms/GoogleButton/GoogleButton.component";
-import { auth, googleProvider } from "./firebase";
-
-interface IAuthentication {
-  email: string;
-  password: string;
-  name: string;
-}
+import { loginSchema, registerSchema } from "../../pages/authentication/authentication.schemas";
+import { googleProvider } from "./firebase";
 
 export function AuthenticationForm(props: PaperProps) {
-  const [type, toggle] = useToggle(["login", "register"]);
+  const [type, toggle] = useToggle([AuthenticationType.LOGIN, AuthenticationType.REGISTER]);
   const [openedLoading, { open: openLoading, close: closeLoading }] = useDisclosure(false);
   const { login: authLogin } = useAuth();
 
-  const loginSchema = yup.object().shape({
-    email: yup.string().email("Invalid email format").required("Email is required"),
-    password: yup
-      .string()
-      .required("Password is required")
-      .min(6, "Password must be at least 6 characters long")
-  });
-
-  const registerSchema = yup.object().shape({
-    name: yup.string().required("Name is required"),
-    email: yup.string().email("Invalid email format").required(),
-    password: yup
-      .string()
-      .required("Password is required")
-      .min(6, "Password must be at least 6 characters long")
-  });
-
-  const getValidationSchema = type === "register" ? registerSchema : loginSchema;
+  const getValidationSchema = type === AuthenticationType.REGISTER ? registerSchema : loginSchema;
 
   const {
     register,
@@ -67,86 +39,19 @@ export function AuthenticationForm(props: PaperProps) {
     resolver: yupResolver(getValidationSchema as any),
     defaultValues: {
       email: "",
-      password: "",
-      name: ""
+      password: ""
     }
   });
 
   const onSubmit = async (data: IAuthentication) => {
+    console.log(data);
     openLoading();
-    if (type === "register") {
-      await createUserWithEmailAndPassword(auth, data.email, data.password)
-        .then((res) =>
-          updateProfile(res.user, {
-            displayName: data.name
-          })
-        )
-        .then(() => {
-          const userData: IUser = {
-            name: data.name,
-            email: data.email,
-            id: data.email
-          };
-          authLogin(userData);
-        })
-        .catch((error) =>
-          handleNotification("Error in authentication", JSON.stringify(error), "red")
-        );
-
-      return;
-    }
-
-    await signInWithEmailAndPassword(auth, data.email, data.password)
-      .then((res) => {
-        const userData: IUser = {
-          name: res.user?.displayName || "",
-          email: res.user?.email || "",
-          id: res.user?.email || ""
-        };
-        authLogin(userData);
-      })
-      .catch((error) => {
-        let errMsg = "";
-
-        if (error.code === "auth/invalid-credential") {
-          errMsg = "Invalid credentials. Please try again.";
-        }
-        if (error.code === "auth/user-not-found") {
-          errMsg = "Usuário não encontrado";
-        }
-        if (error.code === "auth/wrong-password") {
-          errMsg = "Senha incorreta";
-        }
-        if (error.code === "auth/too-many-requests") {
-          errMsg = "Muitas tentativas. Tente novamente mais tarde";
-        }
-
-        handleNotification("Error trying to login", errMsg, "red");
-      });
-
-    closeLoading();
+    await authenticationHandler(data, type, authLogin, closeLoading);
   };
 
-  const loginWithGoogle = () => {
+  const loginWithGoogle = async () => {
     openLoading();
-    signInWithPopup(auth, googleProvider)
-      .then((result) => {
-        const user = result.user;
-        if (user.displayName && user.email) {
-          const userData: IUser = {
-            name: user.displayName,
-            email: user.email,
-            id: user.email
-          };
-          authLogin(userData);
-        }
-      })
-      .catch((error) => {
-        handleNotification("Error in Google authentication", JSON.stringify(error), "red");
-      })
-      .finally(() => {
-        closeLoading();
-      });
+    await googleSignInHandler(googleProvider, authLogin, closeLoading);
   };
 
   return (

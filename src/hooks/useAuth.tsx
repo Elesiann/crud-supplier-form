@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }: any) => {
   const navigate = useNavigate();
 
   const login = async (data: IUser) => {
-    console.log(data);
     setUser(data);
     navigate("/main");
   };
