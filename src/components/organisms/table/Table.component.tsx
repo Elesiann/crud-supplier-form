@@ -1,11 +1,10 @@
-import { Checkbox, Pagination, Select, Table, Text } from "@mantine/core";
+import { Checkbox, HoverCard, Pagination, Select, Table, Text } from "@mantine/core";
 import { useState } from "react";
 import styled from "styled-components";
 import theme from "../../../theme/theme";
 import { ISupplier } from "../../../types/Supplier.type";
 import phone_formatter from "../../../utils/phone_formatter";
 import TableActionMenu from "../../atoms/TableActionmenu/TableActionMenu.component";
-
 interface TableComponentProps {
   data: ISupplier[];
   onDelete: (id: number) => void;
@@ -25,6 +24,19 @@ export default function TableComponent(props: TableComponentProps) {
     const { id, name, description, contacts, address } = supplier;
     const { street, number, city, state } = address;
 
+    const contactsString = contacts
+      .map((contact) => `${contact.name} - ${phone_formatter(contact.phone)}`)
+      .join(", ");
+    const addressString = `${street}, ${number}, ${city} - ${state}`;
+
+    const tdList = [
+      { id: "id", value: id },
+      { id: "name", value: name, hover: name.length > 30 },
+      { id: "description", value: description, hover: description.length > 30 },
+      { id: "contacts", value: contactsString, hover: contactsString.length > 30 },
+      { id: "address", value: addressString, hover: addressString.length > 30 }
+    ];
+
     return (
       <Table.Tr key={id}>
         <Table.Td pl={24}>
@@ -41,17 +53,25 @@ export default function TableComponent(props: TableComponentProps) {
             }
           />
         </Table.Td>
-        <Table.Td>{id}</Table.Td>
-        <Table.Td>{name}</Table.Td>
-        <Table.Td>{description}</Table.Td>
-        <Table.Td>
-          {contacts
-            .map((contact) => `${contact.name} - ${phone_formatter(contact.phone)}`)
-            .join(", ")}
-        </Table.Td>
-        <Table.Td>{`${street}, ${number}, ${city} - ${state}`}</Table.Td>
 
-        <Table.Td pr={24} align="center">
+        {tdList.map((td) => (
+          <Table.Td key={td.id}>
+            {td.hover ? (
+              <HoverCard width={280} shadow="md">
+                <HoverCard.Target>
+                  <span>{td.value}</span>
+                </HoverCard.Target>
+                <HoverCard.Dropdown>
+                  <Text size="sm">{td.value}</Text>
+                </HoverCard.Dropdown>
+              </HoverCard>
+            ) : (
+              <span>{td.value}</span>
+            )}
+          </Table.Td>
+        ))}
+
+        <Table.Td className="last_td" pr={24} align="center">
           <TableActionMenu supplier={supplier} onDelete={props.onDelete} onEdit={props.onEdit} />
         </Table.Td>
       </Table.Tr>
@@ -77,7 +97,9 @@ export default function TableComponent(props: TableComponentProps) {
               <Table.Th>Description</Table.Th>
               <Table.Th>Contacts</Table.Th>
               <Table.Th>Address</Table.Th>
-              <Table.Th pr={24}>Actions</Table.Th>
+              <Table.Th ta={"center"} pr={24}>
+                Actions
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>
@@ -125,6 +147,13 @@ const GlassmorphismTable = styled(Table)`
   -webkit-backdrop-filter: blur(3.9px);
 
   padding: 2rem !important;
+
+  td:not(.last_td) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
 `;
 
 const PaginationWrapper = styled.div`

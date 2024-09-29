@@ -105,7 +105,7 @@
         "reference": ""
       },
       "name": "Supplier 4",
-      "description": "And another description"
+      "description": "And another description ultra giga mega super long text to test the text overflow in the table"
     },
     {
       "id": "c06f",
