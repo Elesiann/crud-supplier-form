@@ -12,7 +12,7 @@ import { ISupplier } from "../../../types/Supplier.type";
 import { handleNotification } from "../../../utils/notification";
 import DrawerComponent from "../../molecules/drawer/Drawer.component";
 import RegisterForm from "../../organisms/RegisterForm/RegisterForm.component";
-import TableComponent from "../../organisms/table/Table.component";
+import TableComponent from "../../organisms/Table/Table.component";
 
 const MainPage = () => {
   const [opened, { open, close }] = useDisclosure(false);

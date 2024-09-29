@@ -18,13 +18,9 @@ export const theme = {
     }
   },
 
-  border: {
-    radius: "16px",
-    style: "2px solid #736681"
-  },
-
   font: {
-    small: "0.5rem",
+    smaller: "0.5rem",
+    small: "0.875rem",
     default: "1rem",
     big: "2rem",
     bigger: "3rem"
