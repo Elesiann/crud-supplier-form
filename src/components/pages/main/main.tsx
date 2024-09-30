@@ -107,7 +107,7 @@ const MainPage = () => {
 
   const handleEdit = (supplier: ISupplier) => {
     setSelectedSupplier(supplier);
-    open();
+    openDrawer();
   };
 
   const handleDrawerClose = () => {
